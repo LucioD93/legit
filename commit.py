@@ -1,4 +1,4 @@
-import socket, threading, os
+import socket, threading, os, sys
 
 class Commit():
     files = None
