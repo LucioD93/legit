@@ -1,4 +1,5 @@
-import socket, threading, os
+import socket, threading, os, sys
+
 
 class Commit():
     files = None
@@ -8,22 +9,22 @@ class Commit():
     def __init__(self, files, host):
         if files != []:
             self.files = files
-            if host != None:
+            if host is not None:
                 self.host = host
             for file in self.files:
                 self.sendFile(file)
         else:
             print('Can not commit nothing!')
             sys.exit(1)
-    
+
     def printFiles(self):
         for i in self.files:
             print(i)
-    
+
     def sendFile(self, file):
         commitSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         commitSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        if self.host == None:
+        if self.host is None:
             self.host = socket.gethostname()
         commitSocket.connect((self.host, self.port))
 

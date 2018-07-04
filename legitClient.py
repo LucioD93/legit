@@ -2,9 +2,11 @@
 import sys
 from commit import Commit
 
+
 def show_usage():
     print('usage:')
     exit()
+
 
 def main(argv):
     if argv[1] == 'commit':
@@ -20,6 +22,7 @@ def main(argv):
         print('checkout')
     else:
         show_usage()
+
 
 if __name__ == '__main__':
     main(sys.argv)
