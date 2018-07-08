@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import sys
 from commit import Commit
 
@@ -7,6 +6,8 @@ def show_usage():
     exit()
 
 def main(argv):
+    if argv.__len__ < 2:
+        show_usage()
     if argv[1] == 'commit':
         if argv[2:] == []:
             print ('Empty')
