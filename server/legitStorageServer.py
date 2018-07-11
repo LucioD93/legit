@@ -2,6 +2,20 @@ import socket, os, sys
 
 def main(argv):
 
+    proxyAddress = socket.gethostname()
+    proxyPort = 8000
+
+    proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    proxySocket.connect((proxyAddress, proxyPort))
+
+    proxySocket.send("NewServer".encode("utf8"))
+
+    response = proxySocket.recv(1024).decode("utf8")
+
+    if response == "Ok":
+        proxySocket.send((str(proxyPort).encode("utf8")))
+    proxySocket.close()
+
     storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     host = socket.gethostname()

@@ -26,16 +26,21 @@ class Commit():
         if self.host == None:
             self.host = socket.gethostname()
         proxySocket.connect((self.host, self.port))
+
+        proxySocket.send("Commit".encode("utf8"))
+
+        answer = proxySocket.recv(1024).decode("utf8")
         
-        proxySocket.send(file.encode("utf8"))
-        response = proxySocket.recv(1024).decode("utf8")
-        if response == "Ok":
-            with open(file, 'rb') as f:
-                while True:
-                    data = f.read(1024)
-                    proxySocket.send(data)
-                    if not data:
-                        break
-                f.close()
-            print("File %s sended" % file)
-        proxySocket.close()
+        if answer == "Ok":
+            proxySocket.send(file.encode("utf8"))
+            response = proxySocket.recv(1024).decode("utf8")
+            if response == "Ok":
+                with open(file, 'rb') as f:
+                    while True:
+                        data = f.read(1024)
+                        proxySocket.send(data)
+                        if not data:
+                            break
+                    f.close()
+                print("File %s sended" % file)
+            proxySocket.close()
