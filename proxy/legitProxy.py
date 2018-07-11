@@ -1,6 +1,12 @@
 import socket, os, itertools
+import heapq
 
 LOGFILE = 'log.txt'
+
+k = 4
+serverList = []
+fileServerList = dict()
+
 
 def incrementFilename(filename):
     filename, extension = os.path.splitext(filename)
@@ -39,6 +45,8 @@ def sendFileToStorage(filename, storageHost=socket.gethostname(), storagePort=80
             print("File %s sended" % filename)
 
     storageSocket.close()
+
+
     # Escribir la operacion en el log
     writeCommitInLog(filename, storageHost, storagePort)
 
@@ -47,10 +55,12 @@ def commitOperation(clientSocket):
     clientSocket.send("Ok".encode("utf8"))
     file = clientSocket.recv(1024).decode("utf8")
     print("Filename: %s" % file)
+
     # Sobrenombrar archivo
     file = createFileName(file)
     print('file renamed')
     clientSocket.send("Ok".encode("utf8"))
+
     with open(file, "wb") as f:
         while True:
             data = clientSocket.recv(1024)
@@ -62,6 +72,7 @@ def commitOperation(clientSocket):
         f.close()
         print('Received')
     clientSocket.close()
+
     # Enviar el archivo a los servidores
     sendFileToStorage(file)
 
@@ -69,8 +80,11 @@ def registerNewStorageServer(clientSocket, newServerAddr):
     clientSocket.send("Ok".encode("utf8"))
     print('Register new server')
     newServerPort = clientSocket.recv(1024).decode("utf8")
+
     # Registrar nuevo servidor con newServerAddr y newServerPort
     print(str(newServerAddr[0]) + " " + newServerPort)
+    heapq.heappush(serverList, (0, str(newServerAddr[0]), newServerPort))
+
 
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
