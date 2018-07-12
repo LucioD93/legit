@@ -24,7 +24,7 @@ class Commit():
         proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         proxySocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if self.host == None:
-            self.host = socket.gethostname()
+            self.host = '192.168.1.122'
         proxySocket.connect((self.host, self.port))
 
         proxySocket.send("Commit".encode("utf8"))
