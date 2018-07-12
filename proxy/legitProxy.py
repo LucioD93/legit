@@ -3,7 +3,7 @@ import heapq
 
 LOGFILE = 'log.txt'
 
-k = 4
+k = 1
 serverList = []
 fileServerList = dict()
 
@@ -14,8 +14,7 @@ def writeCommitInLog(filename, storageHost, storagePort):
         f.close()
 
 def sendFileToStorage(filename, storageHost, storagePort):
-    storageHost = socket.gethostbyaddr(storageHost)[0]
-    # storageHost = 'edgar-Aspire-ES1-572'
+    # storageHost = socket.gethostbyaddr(storageHost[0])[0]
     print('Trying to connect to')
     print(storageHost)
     storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,19 +38,36 @@ def sendFileToStorage(filename, storageHost, storagePort):
     # Escribir la operacion en el log
     writeCommitInLog(filename, storageHost, storagePort)
 
+def addPriorityServerInServerList(host, port):
+    for i, server in enumerate(serverList):
+        if server[1] == host and server[2] == port:
+            print('find')
+            print(port)
+            serverList[i] = (server[0] + 1, host, port)
+            return None
+
 def processFile(file):
     if file in fileServerList:
         servers = fileServerList[file]
     else:
         servers = heapq.nsmallest(k+1, serverList)
+        for s in servers:
+            addPriorityServerInServerList(s[1], s[2])
 
     print('Save in servers')
     print(servers)
 
-    for s in servers:
-        # s[0] = s[0]+1
+    for i, s in enumerate(servers):
         # Esto se convertira en hilos
         sendFileToStorage(file, s[1], s[2])
+        # servers[i] = (s[0] + 1, s[1], s[2])
+        print(servers)
+
+    fileServerList[file] = servers
+    
+    print('all servers')
+    print(serverList)
+    print('-------')
 
 def commitOperation(clientSocket):
     print('Commit')
@@ -76,19 +92,21 @@ def commitOperation(clientSocket):
     # Enviar el archivo a los servidores
     processFile(file)
 
-def registerNewStorageServer(clientSocket):
+def registerNewStorageServer(clientSocket, newServerAddr):
     clientSocket.send("Ok".encode("utf8"))
     print('Register new server')
-    newServerAddr = clientSocket.recv(1024).decode("utf8")
-    newServerPort = clientSocket.recv(1024).decode("utf8")
-
+    print(newServerAddr[0])
+    # newServerAddr = clientSocket.recv(1024).decode("utf8")
+    newServerPort = int(clientSocket.recv(1024).decode("utf8"))
+    print(newServerPort)
     # Registrar nuevo servidor con newServerAddr y newServerPort
-    print(newServerAddr + " " + newServerPort)
-    heapq.heappush(serverList, (0, newServerAddr, newServerPort))
+    # print(newServerAddr + " " + newServerPort)
+    heapq.heappush(serverList, (0, newServerAddr[0], newServerPort))
+
 
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-host = socket.gethostname()
+host = '192.168.1.122'
 port = 8000
 
 serverSocket.bind((host, port))
@@ -107,4 +125,4 @@ while(True):
         commitOperation(clientSocket)
 
     if option == "NewServer":
-        registerNewStorageServer(clientSocket)
+        registerNewStorageServer(clientSocket, addr)
