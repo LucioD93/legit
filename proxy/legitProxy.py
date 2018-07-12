@@ -7,29 +7,19 @@ k = 4
 serverList = []
 fileServerList = dict()
 
-
-def incrementFilename(filename):
-    filename, extension = os.path.splitext(filename)
-    n = 1
-    yield filename + extension
-    for n in itertools.count(start=1, step=1):
-        yield '%s%d%s' % (filename, n, extension)
-
-def createFileName(originalFilename):
-    print('Create file name')
-    for filename in incrementFilename(originalFilename):
-        if not os.path.isfile(filename):
-            return filename
-
 def writeCommitInLog(filename, storageHost, storagePort):
     with open(LOGFILE, "a+") as f:
         f.write("Commit operation, file %s sended to storage server %s, port %s" %(filename, str(storageHost), str(storagePort)))
         f.write("\n")
         f.close()
 
-def sendFileToStorage(filename, storageHost=socket.gethostname(), storagePort=8001):
+def sendFileToStorage(filename, storageHost, storagePort):
+    storageHost = socket.gethostbyaddr(storageHost)[0]
+    # storageHost = 'edgar-Aspire-ES1-572'
+    print('Trying to connect to')
+    print(storageHost)
     storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    storageSocket.connect((storageHost, storagePort))
+    storageSocket.connect((storageHost, int(storagePort)))
     print("Storage socket connected")
     storageSocket.send(filename.encode("utf8"))
 
@@ -46,9 +36,22 @@ def sendFileToStorage(filename, storageHost=socket.gethostname(), storagePort=80
 
     storageSocket.close()
 
-
     # Escribir la operacion en el log
     writeCommitInLog(filename, storageHost, storagePort)
+
+def processFile(file):
+    if file in fileServerList:
+        servers = fileServerList[file]
+    else:
+        servers = heapq.nsmallest(k+1, serverList)
+
+    print('Save in servers')
+    print(servers)
+
+    for s in servers:
+        # s[0] = s[0]+1
+        # Esto se convertira en hilos
+        sendFileToStorage(file, s[1], s[2])
 
 def commitOperation(clientSocket):
     print('Commit')
@@ -57,8 +60,6 @@ def commitOperation(clientSocket):
     print("Filename: %s" % file)
 
     # Sobrenombrar archivo
-    file = createFileName(file)
-    print('file renamed')
     clientSocket.send("Ok".encode("utf8"))
 
     with open(file, "wb") as f:
@@ -68,23 +69,22 @@ def commitOperation(clientSocket):
                 print('Breaking from file write')
                 break
             f.write(data)
-            # print('Wrote to file', data.decode('utf-8'))
         f.close()
         print('Received')
     clientSocket.close()
 
     # Enviar el archivo a los servidores
-    sendFileToStorage(file)
+    processFile(file)
 
-def registerNewStorageServer(clientSocket, newServerAddr):
+def registerNewStorageServer(clientSocket):
     clientSocket.send("Ok".encode("utf8"))
     print('Register new server')
+    newServerAddr = clientSocket.recv(1024).decode("utf8")
     newServerPort = clientSocket.recv(1024).decode("utf8")
 
     # Registrar nuevo servidor con newServerAddr y newServerPort
-    print(str(newServerAddr[0]) + " " + newServerPort)
-    heapq.heappush(serverList, (0, str(newServerAddr[0]), newServerPort))
-
+    print(newServerAddr + " " + newServerPort)
+    heapq.heappush(serverList, (0, newServerAddr, newServerPort))
 
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -107,4 +107,4 @@ while(True):
         commitOperation(clientSocket)
 
     if option == "NewServer":
-        registerNewStorageServer(clientSocket, addr)
+        registerNewStorageServer(clientSocket)

@@ -13,13 +13,19 @@ def main(argv):
     response = proxySocket.recv(1024).decode("utf8")
 
     if response == "Ok":
-        proxySocket.send((str(proxyPort).encode("utf8")))
+        proxySocket.send(socket.gethostname().encode("utf8"))
+        proxySocket.send((str(argv[1]).encode("utf8")))
     proxySocket.close()
+
+    # 
 
     storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     host = socket.gethostname()
     port = int(argv[1])
+
+    print('host')
+    print(host)
 
     storageSocket.bind((host, port))
     storageSocket.listen(5)
