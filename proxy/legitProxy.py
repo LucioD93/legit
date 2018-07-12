@@ -3,7 +3,7 @@ import heapq
 
 LOGFILE = 'log.txt'
 
-k = 1
+k = 2
 serverList = []
 fileServerList = dict()
 
@@ -20,18 +20,22 @@ def sendFileToStorage(filename, storageHost, storagePort):
     storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     storageSocket.connect((storageHost, int(storagePort)))
     print("Storage socket connected")
-    storageSocket.send(filename.encode("utf8"))
+    storageSocket.send("Commit".encode("utf8"))
 
     response = storageSocket.recv(1024).decode("utf8")
     if response == "Ok":
-        with open(filename, 'rb') as f:
-            while True:
-                data = f.read(1024)
-                storageSocket.send(data)
-                if not data:
-                    break
-            f.close()
-            print("File %s sended" % filename)
+        storageSocket.send(filename.encode("utf8"))
+
+        response = storageSocket.recv(1024).decode("utf8")
+        if response == "Ok":
+            with open(filename, 'rb') as f:
+                while True:
+                    data = f.read(1024)
+                    storageSocket.send(data)
+                    if not data:
+                        break
+                f.close()
+                print("File %s sended" % filename)
 
     storageSocket.close()
 
@@ -41,8 +45,6 @@ def sendFileToStorage(filename, storageHost, storagePort):
 def addPriorityServerInServerList(host, port):
     for i, server in enumerate(serverList):
         if server[1] == host and server[2] == port:
-            print('find')
-            print(port)
             serverList[i] = (server[0] + 1, host, port)
             return None
 
@@ -51,17 +53,16 @@ def processFile(file):
         servers = fileServerList[file]
     else:
         servers = heapq.nsmallest(k+1, serverList)
-        for s in servers:
+        for i, s in enumerate(servers):
             addPriorityServerInServerList(s[1], s[2])
+            servers[i] = (0, s[1], s[2])
 
     print('Save in servers')
     print(servers)
 
-    for i, s in enumerate(servers):
+    for s in servers:
         # Esto se convertira en hilos
         sendFileToStorage(file, s[1], s[2])
-        # servers[i] = (s[0] + 1, s[1], s[2])
-        print(servers)
 
     fileServerList[file] = servers
     
@@ -119,7 +120,6 @@ while(True):
     print("Got a connection from %s" % str(addr))
 
     option = clientSocket.recv(1024).decode("utf8")
-    print(option)
 
     if option == "Commit":
         commitOperation(clientSocket)
