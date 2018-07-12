@@ -1,6 +1,5 @@
 import socket, os, sys, itertools
 
-
 def commitOperation(proxySocket):
     proxySocket.send("Ok".encode("utf8"))
 
@@ -24,6 +23,22 @@ def commitOperation(proxySocket):
 
     proxySocket.close()
 
+def updateOperation(proxySocket):
+    proxySocket.send("Ok".encode("utf8"))
+
+    client = proxySocket.recv(1024).decode("utf8")
+
+    print("Client")
+    print(client)
+
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientSocket.connect((client, 7999))
+
+    print("Connected to client")
+
+    clientSocket.close()
+
+    proxySocket.close()
 
 def main(argv):
     # proxyAddress = socket.gethostname()
@@ -47,7 +62,7 @@ def main(argv):
     storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # host = socket.gethostname()
-    host = '192.168.1.105'
+    host = '192.168.1.122'
     port = int(argv[1])
 
     print('host')
@@ -63,8 +78,12 @@ def main(argv):
         option = proxySocket.recv(1024).decode("utf8")
 
         if option == "Commit":
-            print("Va pal comit")
+            print('Commit')
             commitOperation(proxySocket)
+        
+        if option == "Update":
+            print('Update')
+            updateOperation(proxySocket)
 
 
 if __name__ == '__main__':

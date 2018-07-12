@@ -2,7 +2,7 @@ import socket, threading, os, sys
 
 class Commit():
     files = None
-    host = None
+    host = '192.168.1.122'
     port = 8000
 
     def __init__(self, files, host):
@@ -10,8 +10,7 @@ class Commit():
             self.files = files
             if host != None:
                 self.host = host
-            for file in self.files:
-                self.sendFile(file)
+            
         else:
             print('Can not commit nothing!')
             sys.exit(1)
@@ -20,11 +19,13 @@ class Commit():
         for i in self.files:
             print(i)
     
+    def sendAllFiles(self):
+        for file in self.files:
+                self.sendFile(file)
+    
     def sendFile(self, file):
         proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         proxySocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        if self.host == None:
-            self.host = '192.168.1.122'
         proxySocket.connect((self.host, self.port))
 
         proxySocket.send("Commit".encode("utf8"))
@@ -44,3 +45,29 @@ class Commit():
                     f.close()
                 print("File %s sended" % file)
             proxySocket.close()
+    
+    def updateOperation(self, file):
+        proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        proxySocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        proxySocket.connect((self.host, self.port))
+
+        proxySocket.send("Update".encode("utf8"))
+
+        answer = proxySocket.recv(1024).decode("utf8")
+
+        if answer == "Ok":
+            proxySocket.send(file.encode("utf8"))
+            answer = proxySocket.recv(1024).decode("utf8")
+            if answer == "Ok":
+                storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                storageSocket.bind(('192.168.1.122', 7999))
+                storageSocket.listen(1)
+
+                storage, addr = storageSocket.accept()
+                print("Storage connected")
+
+                storage.close()
+
+            elif answer == "Error":
+                print("No se pudo realizar update")
+                sys.exit()

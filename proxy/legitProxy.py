@@ -45,6 +45,10 @@ def sendFileToStorage(filename, storageHost, storagePort):
     # Escribir la operacion en el log
     writeCommitInLog(filename, storageHost, storagePort)
 
+def dropServerInServerList(host, port):
+    for server in enumerate(serverList):
+        if server[1] == host and server[2] == port:
+            serverList.remove(server)
 
 def addPriorityServerInServerList(host, port):
     for i, server in enumerate(serverList):
@@ -103,17 +107,56 @@ def registerNewStorageServer(clientSocket, newServerAddr):
     clientSocket.send("Ok".encode("utf8"))
     print('Register new server')
     print(newServerAddr[0])
-    # newServerAddr = clientSocket.recv(1024).decode("utf8")
     newServerPort = int(clientSocket.recv(1024).decode("utf8"))
     print(newServerPort)
     # Registrar nuevo servidor con newServerAddr y newServerPort
-    # print(newServerAddr + " " + newServerPort)
     heapq.heappush(serverList, (0, newServerAddr[0], newServerPort))
+
+def updateOperation(clientSocket, clientAddr):
+    clientSocket.send("Ok".encode("utf8"))
+    file = clientSocket.recv(1024).decode("utf8")
+    print('Update file')
+    print(file)
+    if file not in fileServerList:
+        clientSocket.send("Error".encode("utf8"))
+        return 1
+
+    print('Posible update servers')
+    print(fileServerList[file])
+
+    server = heapq.heappop(fileServerList[file])
+    storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    while True:
+        try:
+            storageSocket.connect((server[1], server[2]))
+            break
+        except:
+            print('Servidor caido: ' + server[1] + ' ' + str(server[2]))
+            dropServerInServerList(server[1], server[2])
+            if len(fileServerList[file]) == 0:
+                print('Error: no more servers')
+                clientSocket.send("Error".encode("utf8"))
+                return 1
+            server = heapq.heappop(fileServerList[file])
+
+    print('Final update server')
+    print(server)
+
+    storageSocket.send("Update".encode("utf8"))
+
+    response = storageSocket.recv(1024).decode("utf8")
+    if response == "Ok":
+        clientSocket.send("Ok".encode("utf8"))
+        storageSocket.send(clientAddr.encode("utf8"))
+    
+    heapq.heappush(fileServerList[file], server)
+
+    storageSocket.close()
 
 
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-host = '192.168.1.105'
+host = '192.168.1.122'
 port = 8000
 
 serverSocket.bind((host, port))
@@ -132,3 +175,6 @@ while(True):
 
     if option == "NewServer":
         registerNewStorageServer(clientSocket, addr)
+    
+    if option == "Update":
+        updateOperation(clientSocket, addr[0])
