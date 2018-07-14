@@ -32,9 +32,21 @@ def updateOperation(proxySocket):
     print(client)
 
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientSocket.connect((client, 7999))
+    clientSocket.connect((client, 8009))
+    # clientSocket.connect((socket.gethostname(), 8009))
 
     print("Connected to client")
+    file = clientSocket.recv(1024).decode("utf8")
+    print("Client asked for file '%s'" % file)
+
+    with open(file, 'rb') as f:
+        while True:
+            data = f.read(1024)
+            clientSocket.send(data)
+            if not data:
+                break
+        f.close()
+    print("File %s sended" % file)
 
     clientSocket.close()
 
@@ -42,7 +54,7 @@ def updateOperation(proxySocket):
 
 def main(argv):
     # proxyAddress = socket.gethostname()
-    proxyAddress = '192.168.1.122'
+    proxyAddress = '192.168.1.126'
     proxyPort = 8000
 
     proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -56,13 +68,13 @@ def main(argv):
         # proxySocket.send(socket.gethostname().encode("utf8"))
         proxySocket.send((str(argv[1]).encode("utf8")))
     proxySocket.close()
-
+    print("Server registered in the proxy")
     # 
 
     storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # host = socket.gethostname()
-    host = '192.168.1.122'
+    host = '192.168.1.126'
     port = int(argv[1])
 
     print('host')

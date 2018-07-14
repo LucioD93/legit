@@ -2,7 +2,8 @@ import socket, threading, os, sys
 
 class Commit():
     files = None
-    host = '192.168.1.122'
+    host = '192.168.1.126'
+    # host = socket.gethostname()
     port = 8000
 
     def __init__(self, files, host):
@@ -60,11 +61,23 @@ class Commit():
             answer = proxySocket.recv(1024).decode("utf8")
             if answer == "Ok":
                 storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                storageSocket.bind(('192.168.1.122', 7999))
+                storageSocket.bind(('192.168.1.126', 8009))
+                # storageSocket.bind((socket.gethostname(), 8009))
                 storageSocket.listen(1)
 
                 storage, addr = storageSocket.accept()
                 print("Storage connected")
+                print("Asking for file")
+                print(file)
+                storage.send(file.encode("utf8"))
+                print('Filename sended')
+                with open(file, 'wb') as f:
+                    while True:
+                        data = storage.recv(1024)
+                        if not data:
+                            break
+                        f.write(data)
+                    f.close()
 
                 storage.close()
 

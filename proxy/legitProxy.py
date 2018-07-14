@@ -3,7 +3,7 @@ import heapq
 
 LOGFILE = 'log.txt'
 
-k = 2
+k = 1
 serverList = []
 # fileServerList = {'file_name': [(priority, address, port)]}
 fileServerList = dict()
@@ -22,6 +22,7 @@ def sendFileToStorage(filename, storageHost, storagePort):
     print(storageHost)
     storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     storageSocket.connect((storageHost, int(storagePort)))
+    # storageSocket.connect((socket.gethostname(), storagePort))
     print("Storage socket connected")
     storageSocket.send("Commit".encode("utf8"))
 
@@ -129,6 +130,7 @@ def updateOperation(clientSocket, clientAddr):
     while True:
         try:
             storageSocket.connect((server[1], server[2]))
+            # storageSocket.connect((socket.gethostname(), server[2]))
             break
         except:
             print('Servidor caido: ' + server[1] + ' ' + str(server[2]))
@@ -150,13 +152,14 @@ def updateOperation(clientSocket, clientAddr):
         storageSocket.send(clientAddr.encode("utf8"))
     
     heapq.heappush(fileServerList[file], server)
-
+    clientSocket.close()
     storageSocket.close()
 
 
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-host = '192.168.1.122'
+# host = socket.gethostname()
+host = '192.168.1.126'
 port = 8000
 
 serverSocket.bind((host, port))
