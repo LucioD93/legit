@@ -17,9 +17,12 @@ def main(argv):
         if len(argv[2:]) != 1:
             show_usage()
         c = Commit(argv[2:], None)
-        c.updateOperation(argv[2])
+        c.updateOperation(argv[2], "Update")
     elif argv[1] == 'checkout':
-        print('checkout')
+        if len(argv[2:]) != 1:
+            show_usage()
+        c = Commit(argv[2:], None)
+        c.updateOperation(argv[2], "Checkout")
     else:
         show_usage()
 

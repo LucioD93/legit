@@ -47,12 +47,13 @@ class Commit():
                 print("File %s sended" % file)
             proxySocket.close()
     
-    def updateOperation(self, file):
+    def updateOperation(self, file, option):
+        
         proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         proxySocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         proxySocket.connect((self.host, self.port))
 
-        proxySocket.send("Update".encode("utf8"))
+        proxySocket.send(option.encode("utf8"))
 
         answer = proxySocket.recv(1024).decode("utf8")
 

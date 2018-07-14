@@ -113,7 +113,7 @@ def registerNewStorageServer(clientSocket, newServerAddr):
     # Registrar nuevo servidor con newServerAddr y newServerPort
     heapq.heappush(serverList, (0, newServerAddr[0], newServerPort))
 
-def updateOperation(clientSocket, clientAddr):
+def updateOperation(clientSocket, clientAddr, option):
     clientSocket.send("Ok".encode("utf8"))
     file = clientSocket.recv(1024).decode("utf8")
     print('Update file')
@@ -144,7 +144,7 @@ def updateOperation(clientSocket, clientAddr):
     print('Final update server')
     print(server)
 
-    storageSocket.send("Update".encode("utf8"))
+    storageSocket.send(option.encode("utf8"))
 
     response = storageSocket.recv(1024).decode("utf8")
     if response == "Ok":
@@ -180,4 +180,7 @@ while(True):
         registerNewStorageServer(clientSocket, addr)
     
     if option == "Update":
-        updateOperation(clientSocket, addr[0])
+        updateOperation(clientSocket, addr[0], "Update")
+    
+    if option == "Checkout":
+        updateOperation(clientSocket, addr[0], "Checkout")

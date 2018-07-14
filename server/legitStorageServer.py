@@ -23,7 +23,7 @@ def commitOperation(proxySocket):
 
     proxySocket.close()
 
-def updateOperation(proxySocket):
+def updateOperation(proxySocket, option):
     proxySocket.send("Ok".encode("utf8"))
 
     client = proxySocket.recv(1024).decode("utf8")
@@ -38,6 +38,11 @@ def updateOperation(proxySocket):
     print("Connected to client")
     file = clientSocket.recv(1024).decode("utf8")
     print("Client asked for file '%s'" % file)
+
+    if option == "Checkout":
+        oldFileName = "%s_old%s" % os.path.splitext(file)
+        if os.path.isfile(oldFileName):
+            file = oldFileName
 
     with open(file, 'rb') as f:
         while True:
@@ -95,8 +100,11 @@ def main(argv):
         
         if option == "Update":
             print('Update')
-            updateOperation(proxySocket)
-
+            updateOperation(proxySocket, "Update")
+        
+        if option == "Checkout":
+            print('Checkout')
+            updateOperation(proxySocket, "Checkout")
 
 if __name__ == '__main__':
     main(sys.argv)
