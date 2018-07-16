@@ -1,8 +1,10 @@
 import socket, threading, os, sys
 
+
 class Commit():
     files = None
-    host = '192.168.1.126'
+    local = '192.168.43.178'
+    host = '192.168.43.4'
     # host = socket.gethostname()
     port = 8000
 
@@ -11,20 +13,23 @@ class Commit():
             self.files = files
             if host != None:
                 self.host = host
-            
         else:
             print('Can not commit nothing!')
             sys.exit(1)
-    
+
     def printFiles(self):
         for i in self.files:
             print(i)
-    
+
     def sendAllFiles(self):
         for file in self.files:
                 self.sendFile(file)
-    
+
     def sendFile(self, file):
+        if not os.path.isfile(file):
+            print("El archivo no existe.")
+            exit(0)
+
         proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         proxySocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         proxySocket.connect((self.host, self.port))
@@ -32,7 +37,7 @@ class Commit():
         proxySocket.send("Commit".encode("utf8"))
 
         answer = proxySocket.recv(1024).decode("utf8")
-        
+
         if answer == "Ok":
             proxySocket.send(file.encode("utf8"))
             response = proxySocket.recv(1024).decode("utf8")
@@ -48,7 +53,6 @@ class Commit():
             proxySocket.close()
     
     def updateOperation(self, file, option):
-        
         proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         proxySocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         proxySocket.connect((self.host, self.port))
@@ -62,8 +66,8 @@ class Commit():
             answer = proxySocket.recv(1024).decode("utf8")
             if answer == "Ok":
                 storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                storageSocket.bind(('192.168.1.126', 8009))
-                # storageSocket.bind((socket.gethostname(), 8009))
+                storageSocket.bind((self.local, 8009))
+                # storageSocket.bind(('192.168.43.4', 8009))
                 storageSocket.listen(1)
 
                 storage, addr = storageSocket.accept()

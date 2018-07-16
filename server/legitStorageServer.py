@@ -57,9 +57,10 @@ def updateOperation(proxySocket, option):
 
     proxySocket.close()
 
+
 def main(argv):
     # proxyAddress = socket.gethostname()
-    proxyAddress = '192.168.1.126'
+    proxyAddress = '192.168.43.178'
     proxyPort = 8000
 
     proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -79,7 +80,7 @@ def main(argv):
     storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # host = socket.gethostname()
-    host = '192.168.1.126'
+    host = '192.168.43.178'
     port = int(argv[1])
 
     print('host')
