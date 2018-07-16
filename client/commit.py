@@ -2,7 +2,8 @@ import socket, threading, os, sys
 
 class Commit():
     files = None
-    host = '192.168.1.126'
+    host = '192.168.43.178'
+    addres = '192.168.43.4'
     # host = socket.gethostname()
     port = 8000
 
@@ -62,7 +63,7 @@ class Commit():
             answer = proxySocket.recv(1024).decode("utf8")
             if answer == "Ok":
                 storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                storageSocket.bind(('192.168.1.126', 8009))
+                storageSocket.bind((self.addres, 8009))
                 # storageSocket.bind((socket.gethostname(), 8009))
                 storageSocket.listen(1)
 

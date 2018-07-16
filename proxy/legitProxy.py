@@ -159,7 +159,7 @@ def updateOperation(clientSocket, clientAddr, option):
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # host = socket.gethostname()
-host = '192.168.1.126'
+host = '192.168.43.4'
 port = 8000
 
 serverSocket.bind((host, port))
