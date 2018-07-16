@@ -1,4 +1,4 @@
-import socket, os, itertools
+import socket, os, itertools, sys
 import heapq
 
 LOGFILE = 'log.txt'
@@ -159,7 +159,8 @@ def updateOperation(clientSocket, clientAddr, option):
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # host = socket.gethostname()
-host = '192.168.43.4'
+# host = '192.168.43.4'
+host = sys.argv[1]
 port = 8000
 
 serverSocket.bind((host, port))

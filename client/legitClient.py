@@ -12,7 +12,7 @@ def main(argv):
             show_usage()
         print('commit')
         c = Commit(argv[2:], None)
-        c.sendAllFiles()
+        c.sendFile(argv[2], argv[3])
     elif argv[1] == 'update':
         if len(argv[2:]) != 1:
             show_usage()

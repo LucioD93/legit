@@ -59,7 +59,8 @@ def updateOperation(proxySocket, option):
 
 def main(argv):
     # proxyAddress = socket.gethostname()
-    proxyAddress = '192.168.43.4'
+    # proxyAddress = '192.168.43.4'
+    proxyAddress = argv[1]
     proxyPort = 8000
 
     proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,7 +72,7 @@ def main(argv):
 
     if response == "Ok":
         # proxySocket.send(socket.gethostname().encode("utf8"))
-        proxySocket.send((str(argv[1]).encode("utf8")))
+        proxySocket.send((str(argv[2]).encode("utf8")))
     proxySocket.close()
     print("Server registered in the proxy")
     # 
@@ -80,7 +81,7 @@ def main(argv):
 
     # host = socket.gethostname()
     host = '192.168.43.4'
-    port = int(argv[1])
+    port = int(argv[2])
 
     print('host')
     print(host)

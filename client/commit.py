@@ -21,11 +21,8 @@ class Commit():
         for i in self.files:
             print(i)
     
-    def sendAllFiles(self):
-        for file in self.files:
-                self.sendFile(file)
-    
-    def sendFile(self, file):
+    def sendFile(self, file, proxyAddr):
+        self.host = proxyAddr
         proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         proxySocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         proxySocket.connect((self.host, self.port))
