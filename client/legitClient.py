@@ -3,9 +3,13 @@ from commit import Commit
 
 def show_usage():
     print('usage:')
+    print('commit file proxyAddress')
+    print('update/checkout file proxyAddress selfAddress ')
     exit()
 
 def main(argv):
+    if len(argv) < 2:
+        show_usage()
     if argv[1] == 'commit':
         if argv[2:] == []:
             print ('Empty')
