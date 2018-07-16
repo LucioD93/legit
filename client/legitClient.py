@@ -14,10 +14,10 @@ def main(argv):
         c = Commit(argv[2:], None)
         c.sendFile(argv[2], argv[3])
     elif argv[1] == 'update':
-        if len(argv[2:]) != 1:
+        if len(argv[2:]) != 3:
             show_usage()
         c = Commit(argv[2:], None)
-        c.updateOperation(argv[2], "Update")
+        c.updateOperation(argv[2], "Update", argv[3], argv[4])
     elif argv[1] == 'checkout':
         if len(argv[2:]) != 1:
             show_usage()

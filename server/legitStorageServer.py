@@ -72,7 +72,7 @@ def main(argv):
 
     if response == "Ok":
         # proxySocket.send(socket.gethostname().encode("utf8"))
-        proxySocket.send((str(argv[2]).encode("utf8")))
+        proxySocket.send((str(argv[3]).encode("utf8")))
     proxySocket.close()
     print("Server registered in the proxy")
     # 
@@ -80,8 +80,9 @@ def main(argv):
     storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # host = socket.gethostname()
-    host = '192.168.43.4'
-    port = int(argv[2])
+    # host = '192.168.43.4'
+    host = argv[2]
+    port = int(argv[3])
 
     print('host')
     print(host)

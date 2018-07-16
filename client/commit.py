@@ -45,8 +45,11 @@ class Commit():
                 print("File %s sended" % file)
             proxySocket.close()
     
-    def updateOperation(self, file, option):
+    def updateOperation(self, file, option, proxyAddr, selfAddr):
         
+        self.host = proxyAddr
+        self.addres = selfAddr
+
         proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         proxySocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         proxySocket.connect((self.host, self.port))
