@@ -1,4 +1,6 @@
+# Usage: python3 legitStorageServer.py ip_proxy_host ip_server_host server_port
 import socket, os, sys, itertools
+
 
 def commitOperation(proxySocket):
     proxySocket.send("Ok".encode("utf8"))
@@ -22,6 +24,7 @@ def commitOperation(proxySocket):
             f.write(data)
 
     proxySocket.close()
+
 
 def updateOperation(proxySocket, option):
     proxySocket.send("Ok".encode("utf8"))
@@ -59,8 +62,7 @@ def updateOperation(proxySocket, option):
 
 
 def main(argv):
-    # proxyAddress = socket.gethostname()
-    proxyAddress = '192.168.43.178'
+    proxyAddress = argv[1]
     proxyPort = 8000
 
     proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -72,16 +74,15 @@ def main(argv):
 
     if response == "Ok":
         # proxySocket.send(socket.gethostname().encode("utf8"))
-        proxySocket.send((str(argv[1]).encode("utf8")))
+        proxySocket.send((str(argv[3]).encode("utf8")))
     proxySocket.close()
     print("Server registered in the proxy")
     # 
 
     storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # host = socket.gethostname()
-    host = '192.168.43.178'
-    port = int(argv[1])
+    host = argv[2]
+    port = int(argv[3])
 
     print('host')
     print(host)

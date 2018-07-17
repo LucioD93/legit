@@ -1,28 +1,34 @@
 import sys
 from commit import Commit
 
+
 def show_usage():
     print('usage:')
+    print('commit file proxyAddress')
+    print('update/checkout file proxyAddress selfAddress ')
     exit()
 
+
 def main(argv):
+    if len(argv) < 2:
+        show_usage()
     if argv[1] == 'commit':
         if argv[2:] == []:
             print ('Empty')
             show_usage()
         print('commit')
         c = Commit(argv[2:], None)
-        c.sendAllFiles()
+        c.sendFile(argv[2], argv[3])
     elif argv[1] == 'update':
-        if len(argv[2:]) != 1:
+        if len(argv[2:]) != 3:
             show_usage()
         c = Commit(argv[2:], None)
-        c.updateOperation(argv[2], "Update")
+        c.updateOperation(argv[2], "Update", argv[3], argv[4])
     elif argv[1] == 'checkout':
-        if len(argv[2:]) != 1:
+        if len(argv[2:]) != 3:
             show_usage()
         c = Commit(argv[2:], None)
-        c.updateOperation(argv[2], "Checkout")
+        c.updateOperation(argv[2], "Checkout", argv[3], argv[4])
     else:
         show_usage()
 

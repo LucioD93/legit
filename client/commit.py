@@ -3,8 +3,8 @@ import socket, threading, os, sys
 
 class Commit():
     files = None
-    local = '192.168.43.178'
-    host = '192.168.43.4'
+    host = '192.168.43.178'
+    addres = '192.168.43.4'
     # host = socket.gethostname()
     port = 8000
 
@@ -21,15 +21,8 @@ class Commit():
         for i in self.files:
             print(i)
 
-    def sendAllFiles(self):
-        for file in self.files:
-                self.sendFile(file)
-
-    def sendFile(self, file):
-        if not os.path.isfile(file):
-            print("El archivo no existe.")
-            exit(0)
-
+    def sendFile(self, file, proxyAddr):
+        self.host = proxyAddr
         proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         proxySocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         proxySocket.connect((self.host, self.port))
@@ -51,8 +44,11 @@ class Commit():
                     f.close()
                 print("File %s sended" % file)
             proxySocket.close()
-    
-    def updateOperation(self, file, option):
+
+    def updateOperation(self, file, option, proxyAddr, selfAddr):
+        self.host = proxyAddr
+        self.addres = selfAddr
+
         proxySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         proxySocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         proxySocket.connect((self.host, self.port))
@@ -66,8 +62,8 @@ class Commit():
             answer = proxySocket.recv(1024).decode("utf8")
             if answer == "Ok":
                 storageSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                storageSocket.bind((self.local, 8009))
-                # storageSocket.bind(('192.168.43.4', 8009))
+                storageSocket.bind((self.addres, 8009))
+                # storageSocket.bind((socket.gethostname(), 8009))
                 storageSocket.listen(1)
 
                 storage, addr = storageSocket.accept()
